@@ -183,6 +183,11 @@ p { text-wrap: pretty; }
 
 .brand { display: inline-flex; align-items: center; gap: .8rem; }
 .brand__mark { width: 52px; height: 52px; flex: none; }
+/* An uploaded logo file (assets/img/logo.*) replaces the drawn mark. */
+.brand--image { gap: 0; }
+.brand__logo { height: 54px; width: auto; max-width: 260px; object-fit: contain; }
+.site-footer .brand__logo { height: 60px; }
+@media (max-width: 520px) { .brand__logo { height: 44px; } }
 .brand__text { display: grid; line-height: 1; gap: .22rem; }
 .brand__name { font-family: var(--font-head); font-weight: 700; font-size: 1.06rem; letter-spacing: .06em; text-transform: uppercase; color: var(--navy-900); }
 .brand__tag  { font-family: var(--font-head); font-size: .62rem; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-mute); font-weight: 600; }

@@ -10,11 +10,32 @@ weather.*
 
 ---
 
-## ⚠️ First job: replace the placeholder photos
+## ⚠️ First job: add the real logo and photos
+
+Nothing here needs a code edit — it is all drag-and-drop file uploads, then one
+command.
+
+### 1. The logo
+
+Drop your logo file into `assets/img/` named exactly:
+
+| File | Used for |
+| --- | --- |
+| `logo.svg` (or `.png`) | The white header — your normal navy logo |
+| `logo-white.svg` (or `.png`) | The navy footer — a white/reversed version |
+
+`build.py` picks them up automatically and swaps out the drawn fallback mark.
+If you only have one version, upload `logo.svg` alone and it is used in both
+places. SVG is best (stays sharp at any size); a PNG at roughly 800px wide with
+a transparent background is fine too.
+
+To change the browser tab icon as well, replace `assets/img/favicon.svg`.
+
+### 2. The photos
 
 Everything in `assets/img/photos/` is a **generated placeholder**, marked with a
-small `PLACEHOLDER` badge in the corner. Swap in real photographs — keep the
-filenames and roughly the aspect ratios and nothing else needs changing.
+small `PLACEHOLDER` badge in the corner. Replace them with real photographs —
+keep the filenames and roughly the aspect ratios.
 
 | File | Used for | Size / ratio |
 | --- | --- | --- |
@@ -23,15 +44,36 @@ filenames and roughly the aspect ratios and nothing else needs changing.
 | `ba-flat-before.jpg` / `ba-flat-after.jpg` | Flat roof before/after slider | 1400×1000 (7:5) — **same framing** |
 | `work-1.jpg` … `work-6.jpg` | "Recent work" gallery + service page photos | 1200×900 (4:3) |
 
-For the before/after sliders, shoot or crop both frames from the **same
-position** — the effect only works when the two images line up.
+Notes that make a real difference:
 
-Captions, alt text and the pairing live in `build.py` (`HERO_SLIDES`,
-`BEFORE_AFTER`, `GALLERY`, `SERVICE_PHOTO`). Update the alt text when you swap
-the photos — it matters for both accessibility and image search.
+- **Hero shots** are wide and get text over the left-hand third — pick photos
+  with the interesting part on the right.
+- **Before/after pairs** only work if both frames are shot or cropped from the
+  **same position**. Line them up and the slider does the rest.
+- Keep files under about 400 KB each. Resize to the sizes above before
+  uploading rather than dropping in 6 MB phone photos.
+- Filenames must end `.jpg`. If yours are `.png` or `.jpeg`, rename them.
 
-`tools/make_images.py` regenerates the placeholders and the Open Graph card if
-you ever need them again (`pip install pillow`).
+### 3. Rebuild
+
+```bash
+python3 build.py
+```
+
+Photos alone do not strictly need this — same filenames, same HTML. The logo
+does. Run it either way, then update the alt text (see below) and run it again.
+
+### 4. Update the alt text
+
+Alt text describes each photo for screen readers and image search, so it should
+match what the photo actually shows. It lives in `build.py`:
+
+| Where | What it controls |
+| --- | --- |
+| `HERO_SLIDES` | Hero slideshow captions |
+| `BEFORE_AFTER` | Before/after titles, copy, benefit tags and alt text |
+| `GALLERY` | "Recent work" titles, job types and alt text |
+| `SERVICE_PHOTO` | Which photo appears on each service page |
 
 ## Structure
 

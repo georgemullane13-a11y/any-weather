@@ -490,6 +490,43 @@ TEL = "tel:" + SITE["phone_tel"]
 WA = "https://wa.me/" + SITE["whatsapp"]
 
 
+# --------------------------------------------------------------------------- #
+#  Brand lockup
+#
+#  Drop a real logo file into assets/img/ and it is picked up automatically on
+#  the next `python3 build.py` — no code change needed:
+#
+#      assets/img/logo.svg        (or .png)  — for the white header
+#      assets/img/logo-white.svg  (or .png)  — for the navy footer
+#
+#  With no file present the site falls back to the vector mark drawn below.
+# --------------------------------------------------------------------------- #
+
+def _find_logo(stem):
+    for ext in ("svg", "png", "webp", "jpg"):
+        rel = "assets/img/%s.%s" % (stem, ext)
+        if os.path.exists(os.path.join(ROOT, rel)):
+            return "/" + rel
+    return None
+
+
+def brand_lockup(light=False, aria=""):
+    """The header/footer logo. An uploaded logo file wins over the drawn mark."""
+    src = _find_logo("logo-white") if light else _find_logo("logo")
+    if src is None and light:
+        src = _find_logo("logo")            # one file is enough if it reads on navy
+    label = ' aria-label="%s"' % E(aria) if aria else ""
+    if src:
+        return ('<a class="brand brand--image" href="/"%s>'
+                '<img class="brand__logo" src="%s" alt="%s" width="260" height="84">'
+                '</a>') % (label, src, E(SITE["name"]))
+    return ('<a class="brand" href="/"%s>%s'
+            '<span class="brand__text">'
+            '<span class="brand__name">Any Weather</span>'
+            '<span class="brand__tag">Roofing Ltd</span>'
+            '</span></a>') % (label, LOGO_SVG)
+
+
 def business_jsonld():
     return {
         "@type": ["RoofingContractor", "LocalBusiness"],
@@ -501,7 +538,7 @@ def business_jsonld():
         "url": SITE["origin"] + "/",
         "telephone": SITE["phone_display"],
         "image": SITE["origin"] + "/assets/img/og-image.png",
-        "logo": SITE["origin"] + "/assets/img/logo.svg",
+        "logo": SITE["origin"] + (_find_logo("logo") or "/assets/img/favicon.svg"),
         "priceRange": "££",
         "address": {
             "@type": "PostalAddress",
@@ -623,13 +660,7 @@ def site_header(active):
 </div>
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="brand" href="/" aria-label="{name} — home">
-      {logo}
-      <span class="brand__text">
-        <span class="brand__name">Any Weather</span>
-        <span class="brand__tag">Roofing Ltd</span>
-      </span>
-    </a>
+    {brand}
     <nav class="nav" id="primary-nav" aria-label="Primary">
       {links}
       <a class="btn btn--sm" href="/contact/">Get a free quote</a>
@@ -642,8 +673,8 @@ def site_header(active):
 </header>
 """.format(links=links, tel=TEL, phone=icon("phone"), pin=icon("pin"), clock=icon("clock"),
            badge=icon("badge"), region=E(SITE["region"]), hours=E(SITE["hours"]),
-           phone_display=SITE["phone_display"], name=E(SITE["name"]), logo=LOGO_SVG,
-           founded=SITE["founded"])
+           phone_display=SITE["phone_display"], name=E(SITE["name"]),
+           brand=brand_lockup(aria=SITE["name"] + " — home"))
 
 
 def cta_band(heading, text, deep=True):
@@ -677,13 +708,7 @@ def site_footer():
   <div class="container">
     <div class="footer-grid">
       <div>
-        <a class="brand" href="/">
-          {logo}
-          <span class="brand__text">
-            <span class="brand__name">Any Weather</span>
-            <span class="brand__tag">Roofing Ltd</span>
-          </span>
-        </a>
+        {brand}
         <p>Plymouth's trusted roofing specialists. Quality workmanship, honest advice and long-lasting protection — whatever the weather.</p>
         <p style="margin-top:1rem"><a class="link-arrow" href="{checkatrade}" rel="noopener nofollow">{badge} Checkatrade reviews {arrow}</a></p>
         <p style="margin-top:.5rem"><a class="link-arrow" href="{facebook}" rel="noopener nofollow">{users} Follow us on Facebook {arrow}</a></p>
@@ -719,7 +744,7 @@ def site_footer():
 <script src="/assets/js/main.js" defer></script>
 </body>
 </html>
-""".format(logo=LOGO_SVG, service_links=service_links, area_links=area_links, tel=TEL, wa=WA,
+""".format(brand=brand_lockup(light=True), service_links=service_links, area_links=area_links, tel=TEL, wa=WA,
            phone=icon("phone"), wa_icon=icon("whatsapp"), pin=icon("pin"), clock=icon("clock"),
            badge=icon("badge"), phone_display=SITE["phone_display"], name=E(SITE["name"]),
            company_no=SITE["company_no"], checkatrade=SITE["checkatrade"],
