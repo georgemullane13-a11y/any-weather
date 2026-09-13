@@ -23,7 +23,7 @@ TODAY = datetime.date.today().isoformat()
 SITE = {
     "name": "Any Weather Roofing Ltd",
     "short": "Any Weather Roofing",
-    "tagline": "Roofing you can rely on",
+    "tagline": "Quality roofing. Any weather.",
     "origin": "https://anyweatherroofingltd.co.uk",
     "phone_display": "07745 364 538",
     "phone_tel": "+447745364538",
@@ -33,7 +33,10 @@ SITE = {
     "region": "Plymouth and the surrounding areas",
     "company_no": "15905071",
     "checkatrade": "https://www.checkatrade.com/trades/anyweatherroofingltd",
-    "hours": "24-hour call-out, 7 days a week",
+    "facebook": "https://www.facebook.com/people/Any-Weather-Roofing-LTD/",
+    "recommend_pct": "100",
+    "review_count": "27",
+    "hours": "Free quote booked within 12 hours",
     "founded": "2024",
 }
 
@@ -74,6 +77,8 @@ ICONS = {
     "check": _i('<circle data-draw cx="12" cy="12" r="9.2"/><path data-draw d="m8 12.3 2.7 2.7L16.3 9"/>'),
     "star": _i('<path d="m12 2.6 2.9 5.9 6.5.9-4.7 4.6 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.6 9.4l6.5-.9Z"/>', fill=True),
     "arrow": _i('<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>'),
+    "arrow-left": _i('<path d="M20 12H5"/><path d="m11 6-6 6 6 6"/>'),
+    "drag": _i('<path d="M9 6 3.6 12 9 18"/><path d="m15 6 5.4 6L15 18"/><path d="M12 3.6v16.8"/>'),
     "pin": _i('<path data-draw d="M12 21.4s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle data-draw cx="12" cy="10.2" r="2.6"/>'),
     "clock": _i('<circle data-draw cx="12" cy="12" r="9.2"/><path data-draw d="M12 6.8V12l3.4 2"/>'),
     "mail": _i('<rect data-draw x="2.8" y="4.8" width="18.4" height="14.4" rx="2.4"/><path data-draw d="m3.4 6.6 8.6 6 8.6-6"/>'),
@@ -454,6 +459,18 @@ SERVICES = [
 
 SERVICE_BY_SLUG = {s["slug"]: s for s in SERVICES}
 
+# One photograph per service page (files live in assets/img/photos/).
+SERVICE_PHOTO = {
+    "new-roofs": ("work-1.jpg", "Completed new tiled roof on a Plymouth home"),
+    "roof-repairs": ("work-2.jpg", "Roof stripped back to the battens during a repair"),
+    "flat-roofing": ("ba-flat-after.jpg", "New seamless membrane flat roof with trimmed edges"),
+    "roofline-fascias-soffits-guttering": ("work-6.jpg", "New fascias, soffits and guttering fitted"),
+    "chimney-repairs": ("work-3.jpg", "Rebuilt chimney stack with new lead flashing"),
+    "lead-work": ("work-4.jpg", "Dry-fixed ridge and new leadwork on a finished roof"),
+    "moss-removal-roof-cleaning": ("work-5.jpg", "Roof cleared of moss and debris"),
+    "emergency-roofing": ("hero-2.jpg", "Storm damaged roof made safe with scaffolding in place"),
+}
+
 
 # --------------------------------------------------------------------------- #
 #  Shared chrome
@@ -553,7 +570,7 @@ def head(title, desc, path, structured, og_type="website"):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="theme-color" content="#0e1b27">
+<meta name="theme-color" content="#0a2035">
 <meta name="author" content="{name}">
 <meta name="geo.region" content="GB-PLY">
 <meta name="geo.placename" content="Plymouth">
@@ -576,7 +593,7 @@ def head(title, desc, path, structured, og_type="website"):
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="/assets/css/styles.css">
 {structured}
 </head>
@@ -597,7 +614,7 @@ def site_header(active):
     <ul class="topbar__list">
       <li>{pin} {region}</li>
       <li>{clock} {hours}</li>
-      <li>{badge} Checkatrade approved</li>
+      <li>{badge} Checkatrade approved &amp; fully insured</li>
     </ul>
     <ul class="topbar__list">
       <li>{phone} <a href="{tel}"><strong>{phone_display}</strong></a></li>
@@ -609,8 +626,8 @@ def site_header(active):
     <a class="brand" href="/" aria-label="{name} — home">
       {logo}
       <span class="brand__text">
-        <span class="brand__name">Any Weather Roofing</span>
-        <span class="brand__tag">Plymouth &middot; Est. {founded}</span>
+        <span class="brand__name">Any Weather</span>
+        <span class="brand__tag">Roofing Ltd</span>
       </span>
     </a>
     <nav class="nav" id="primary-nav" aria-label="Primary">
@@ -634,7 +651,7 @@ def cta_band(heading, text, deep=True):
 <section class="section section--{tone}">
   <div class="container">
     <div class="cta-band reveal">
-      {tiles}
+      {mark}
       <span class="eyebrow">Free, no-obligation quote</span>
       <h2>{heading}</h2>
       <p>{text}</p>
@@ -646,9 +663,9 @@ def cta_band(heading, text, deep=True):
     </div>
   </div>
 </section>
-""".format(tone="cream" if deep else "paper", heading=E(heading), text=E(text), tel=TEL, wa=WA,
+""".format(tone="mist" if deep else "paper", heading=E(heading), text=E(text), tel=TEL, wa=WA,
            phone=icon("phone"), wa_icon=icon("whatsapp"), phone_display=SITE["phone_display"],
-           tiles=CTA_TILES_SVG)
+           mark=CTA_MARK_SVG)
 
 
 def site_footer():
@@ -663,12 +680,13 @@ def site_footer():
         <a class="brand" href="/">
           {logo}
           <span class="brand__text">
-            <span class="brand__name">Any Weather Roofing</span>
-            <span class="brand__tag">Plymouth &middot; Devon</span>
+            <span class="brand__name">Any Weather</span>
+            <span class="brand__tag">Roofing Ltd</span>
           </span>
         </a>
-        <p>Reliable roofing across Plymouth and the surrounding areas — quality workmanship, honest advice and long-lasting protection for your home.</p>
-        <p style="margin-top:1rem"><a class="link-arrow" href="{checkatrade}" rel="noopener nofollow">{badge} See our Checkatrade reviews</a></p>
+        <p>Plymouth's trusted roofing specialists. Quality workmanship, honest advice and long-lasting protection — whatever the weather.</p>
+        <p style="margin-top:1rem"><a class="link-arrow" href="{checkatrade}" rel="noopener nofollow">{badge} Checkatrade reviews {arrow}</a></p>
+        <p style="margin-top:.5rem"><a class="link-arrow" href="{facebook}" rel="noopener nofollow">{users} Follow us on Facebook {arrow}</a></p>
       </div>
       <div>
         <h4>Services</h4>
@@ -704,7 +722,8 @@ def site_footer():
 """.format(logo=LOGO_SVG, service_links=service_links, area_links=area_links, tel=TEL, wa=WA,
            phone=icon("phone"), wa_icon=icon("whatsapp"), pin=icon("pin"), clock=icon("clock"),
            badge=icon("badge"), phone_display=SITE["phone_display"], name=E(SITE["name"]),
-           company_no=SITE["company_no"], checkatrade=SITE["checkatrade"])
+           company_no=SITE["company_no"], checkatrade=SITE["checkatrade"],
+           facebook=SITE["facebook"], users=icon("users"), arrow=icon("arrow"))
 
 
 def crumbs(trail):
@@ -742,181 +761,55 @@ def faq_section(faqs, heading="Frequently asked questions", intro=None, tone="pa
 
 
 # --------------------------------------------------------------------------- #
-#  Original artwork (hand-built inline SVG — no stock imagery, no image weight)
+#  Brand marks and diagrams (inline SVG — no image weight)
 # --------------------------------------------------------------------------- #
 
-LOGO_SVG = """<svg class="brand__mark" viewBox="0 0 48 48" role="img" aria-label="Any Weather Roofing logo">
-  <defs>
-    <linearGradient id="lg-roof" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f4a25c"/><stop offset="1" stop-color="#c25e12"/>
-    </linearGradient>
-    <linearGradient id="lg-body" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1d3b55"/><stop offset="1" stop-color="#0e1b27"/>
-    </linearGradient>
-  </defs>
-  <rect x="1" y="1" width="46" height="46" rx="13" fill="url(#lg-body)"/>
-  <path d="M9 25.5 24 12.5l15 13" fill="none" stroke="url(#lg-roof)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M13.5 24.4V36h21V24.4" fill="none" stroke="#8cc3e4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M20.4 36v-6.6h7.2V36" fill="none" stroke="#8cc3e4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>
-  <circle cx="35.5" cy="14.5" r="3.6" fill="#f4a25c"/>
+LOGO_SVG = """<svg class="brand__mark" viewBox="0 0 120 96" role="img" aria-label="Any Weather Roofing Ltd logo">
+  <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 54a52 52 0 0 1 104 0"/>
+    <path d="M18 78 46 50l17 17"/>
+    <path d="M63 67 84 46l19 19v13"/>
+    <path d="M18 78h85"/>
+  </g>
+  <g fill="currentColor">
+    <rect x="76" y="56" width="8" height="8"/><rect x="88" y="56" width="8" height="8"/>
+    <rect x="76" y="68" width="8" height="8"/><rect x="88" y="68" width="8" height="8"/>
+  </g>
 </svg>"""
 
-
-def _hero_tiles():
-    """Rows of roof tiles that lay themselves in on page load."""
-    rows, delay = [], 0
-    for r in range(8):
-        y = 138 + r * 26
-        # The gable widens towards the eaves, so each row starts further out.
-        left = 360 - (34 + r * 32.5)
-        cols = int((360 - left) / 34) * 2
-        for c in range(cols):
-            cx = left + c * 34
-            tone = "#2b5478" if (r + c) % 3 else "#1d3b55"
-            rows.append(
-                '<rect x="%.1f" y="%d" width="30" height="22" rx="4" fill="%s" '
-                'style="animation:laytile .62s cubic-bezier(.2,.8,.3,1) both;animation-delay:%dms"/>'
-                % (cx, y, tone, delay + c * 26))
-        delay += 90
-    return "".join(rows)
-
-
-HERO_SVG = """<svg viewBox="0 0 720 600" role="img" aria-labelledby="hero-art-title" data-parallax>
-  <title id="hero-art-title">Illustration of a pitched slate roof being laid, with sunshine breaking through after rain</title>
-  <defs>
-    <linearGradient id="h-wall" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f7f3ec"/><stop offset="1" stop-color="#ddd4c6"/>
-    </linearGradient>
-    <linearGradient id="h-sun" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffd7a8"/><stop offset="1" stop-color="#e2711d"/>
-    </linearGradient>
-    <linearGradient id="h-ridge" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#e2711d"/><stop offset="1" stop-color="#f4a25c"/>
-    </linearGradient>
-    <clipPath id="h-roof"><path d="M360 96 660 342H60Z"/></clipPath>
-  </defs>
-
-  <!-- sun -->
-  <g transform="translate(578 108)">
-    <g style="animation:sunspin 44s linear infinite;transform-origin:0 0">
-      <g fill="#f4a25c" opacity=".55">
-        <rect x="-2.5" y="-92" width="5" height="22" rx="2.5"/>
-        <rect x="-2.5" y="70" width="5" height="22" rx="2.5"/>
-        <rect x="-92" y="-2.5" width="22" height="5" rx="2.5"/>
-        <rect x="70" y="-2.5" width="22" height="5" rx="2.5"/>
-        <rect x="-2.5" y="-92" width="5" height="22" rx="2.5" transform="rotate(45)"/>
-        <rect x="-2.5" y="70" width="5" height="22" rx="2.5" transform="rotate(45)"/>
-        <rect x="-92" y="-2.5" width="22" height="5" rx="2.5" transform="rotate(45)"/>
-        <rect x="70" y="-2.5" width="22" height="5" rx="2.5" transform="rotate(45)"/>
-      </g>
-    </g>
-    <circle r="52" fill="url(#h-sun)" opacity=".92"/>
-    <circle r="52" fill="none" stroke="#ffd7a8" stroke-width="2" opacity=".5"/>
+CTA_MARK_SVG = """<svg class="cta-band__mark" viewBox="0 0 120 96" aria-hidden="true" focusable="false">
+  <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 54a52 52 0 0 1 104 0"/><path d="M18 78 46 50l17 17"/>
+    <path d="M63 67 84 46l19 19v13"/><path d="M18 78h85"/>
   </g>
-
-  <!-- clouds -->
-  <g fill="#e8f1f8" opacity=".14" class="floaty">
-    <ellipse cx="150" cy="92" rx="78" ry="30"/>
-    <ellipse cx="205" cy="80" rx="52" ry="26"/>
-    <ellipse cx="102" cy="84" rx="42" ry="22"/>
-  </g>
-  <g fill="#e8f1f8" opacity=".1" class="floaty" style="animation-delay:-3.4s">
-    <ellipse cx="520" cy="230" rx="62" ry="22"/>
-    <ellipse cx="566" cy="222" rx="40" ry="18"/>
-  </g>
-
-  <!-- walls -->
-  <rect x="118" y="342" width="484" height="212" rx="10" fill="url(#h-wall)"/>
-  <rect x="118" y="342" width="484" height="212" rx="10" fill="none" stroke="#c9bfae" stroke-width="2"/>
-
-  <!-- windows and door -->
-  <g>
-    <rect x="164" y="392" width="104" height="86" rx="7" fill="#1d3b55"/>
-    <rect x="164" y="392" width="104" height="86" rx="7" fill="none" stroke="#f7f3ec" stroke-width="5"/>
-    <path d="M216 392v86M164 435h104" stroke="#f7f3ec" stroke-width="5"/>
-    <rect x="452" y="392" width="104" height="86" rx="7" fill="#1d3b55"/>
-    <rect x="452" y="392" width="104" height="86" rx="7" fill="none" stroke="#f7f3ec" stroke-width="5"/>
-    <path d="M504 392v86M452 435h104" stroke="#f7f3ec" stroke-width="5"/>
-    <rect x="316" y="414" width="88" height="140" rx="8" fill="#1d3b55"/>
-    <rect x="316" y="414" width="88" height="140" rx="8" fill="none" stroke="#f7f3ec" stroke-width="5"/>
-    <circle cx="386" cy="490" r="5" fill="#f4a25c"/>
-  </g>
-
-  <!-- roof tiles -->
-  <g clip-path="url(#h-roof)">%TILES%</g>
-
-  <!-- chimney with lead flashing -->
-  <g>
-    <rect x="446" y="150" width="62" height="118" rx="5" fill="#14283a"/>
-    <rect x="440" y="140" width="74" height="16" rx="5" fill="#2b5478"/>
-    <rect x="458" y="118" width="18" height="24" rx="4" fill="#0e1b27"/>
-    <rect x="482" y="118" width="18" height="24" rx="4" fill="#0e1b27"/>
-    <path d="M446 236h62v18h-62z" fill="#8cc3e4" opacity=".55"/>
-  </g>
-
-  <!-- ridge and barge -->
-  <path d="M360 96 660 342H60Z" fill="none" stroke="url(#h-ridge)" stroke-width="9" stroke-linejoin="round"/>
-  <circle cx="360" cy="98" r="9" fill="#f4a25c"/>
-
-  <!-- gutter -->
-  <rect x="52" y="336" width="616" height="16" rx="8" fill="#0e1b27" opacity=".7"/>
-  <rect x="96" y="352" width="12" height="202" rx="6" fill="#0e1b27" opacity=".55"/>
-  <rect x="612" y="352" width="12" height="202" rx="6" fill="#0e1b27" opacity=".55"/>
-
-  <!-- ground -->
-  <rect x="30" y="552" width="660" height="8" rx="4" fill="#8cc3e4" opacity=".28"/>
-
-  <!-- birds -->
-  <g fill="none" stroke="#8cc3e4" stroke-width="2.6" stroke-linecap="round" opacity=".6" class="floaty" style="animation-delay:-1.6s">
-    <path d="M96 176c7-8 14-8 21 0"/><path d="M117 176c7-8 14-8 21 0"/>
-    <path d="M150 214c5-6 10-6 15 0"/>
-  </g>
-</svg>""".replace("%TILES%", _hero_tiles())
-
-
-CTA_TILES_SVG = """<svg class="cta-band__tiles" viewBox="0 0 320 200" aria-hidden="true" focusable="false">
-  <g fill="#ffffff">""" + "".join(
-    '<rect x="%d" y="%d" width="46" height="30" rx="6" opacity="%.2f"/>'
-    % (10 + c * 52, 10 + r * 36, 0.25 + ((r + c) % 3) * 0.22)
-    for r in range(5) for c in range(6)
-) + "</g></svg>"
+</svg>"""
 
 
 ROOF_SECTION_SVG = """<svg viewBox="0 0 700 400" role="img" aria-labelledby="sec-title">
   <title id="sec-title">Cross-section of a correctly built pitched roof: rafter, breathable membrane, treated batten and slate covering</title>
-  <defs>
-    <linearGradient id="s-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#17364f"/><stop offset="1" stop-color="#0e1b27"/>
-    </linearGradient>
-  </defs>
-  <rect width="700" height="400" fill="url(#s-bg)"/>
-  <g stroke="#2b5478" stroke-width="1" opacity=".35">""" + "".join(
+  <rect width="700" height="400" fill="#0d2942"/>
+  <g stroke="#17456e" stroke-width="1" opacity=".5">""" + "".join(
     '<path d="M0 %d h700"/>' % y for y in range(0, 400, 28)
 ) + """</g>
   <g transform="rotate(-26 300 250)">
-    <!-- rafter -->
-    <rect x="80" y="268" width="400" height="22" rx="3" fill="#3d2a1c"/>
-    <rect x="80" y="268" width="400" height="22" rx="3" fill="none" stroke="#6b4a31" stroke-width="2"/>
-    <!-- membrane -->
-    <path d="M80 262h400" stroke="#8cc3e4" stroke-width="7" stroke-linecap="round" data-draw/>
-    <!-- battens -->""" + "".join(
-    '<rect x="%d" y="238" width="18" height="18" rx="2" fill="#8a6440"/>' % x
+    <rect x="80" y="268" width="400" height="22" rx="2" fill="#3d2a1c"/>
+    <rect x="80" y="268" width="400" height="22" rx="2" fill="none" stroke="#6b4a31" stroke-width="2"/>
+    <path d="M80 262h400" stroke="#1e8bff" stroke-width="7" stroke-linecap="round" data-draw/>""" + "".join(
+    '<rect x="%d" y="238" width="18" height="18" fill="#8a6440"/>' % x
     for x in range(96, 470, 62)
-) + """
-    <!-- slates -->""" + "".join(
-    '<rect x="%d" y="%d" width="96" height="12" rx="3" fill="%s" style="animation:laytile .6s cubic-bezier(.2,.8,.3,1) both;animation-delay:%dms"/>'
-    % (86 + i * 62, 226 - 0, "#2b5478" if i % 2 else "#1d3b55", 120 + i * 110)
-    for i in range(6)
+) + "".join(
+    '<rect x="%d" y="226" width="96" height="12" rx="2" fill="%s"/>'
+    % (86 + i * 62, "#2f4b66" if i % 2 else "#22394f") for i in range(6)
 ) + """
   </g>
-  <g font-family="Outfit, sans-serif" font-size="15" font-weight="600" fill="#dbe8f2">
-    <g stroke="#f4a25c" stroke-width="1.6" fill="none">
+  <g font-family="Archivo, sans-serif" font-size="15" font-weight="600" fill="#cfe0ef">
+    <g stroke="#1e8bff" stroke-width="1.6" fill="none">
       <path d="M368 96h58"/><path d="M338 168h88"/><path d="M310 238h116"/><path d="M282 308h144"/>
     </g>
-    <circle cx="368" cy="96" r="4" fill="#f4a25c" stroke="none"/>
-    <circle cx="338" cy="168" r="4" fill="#f4a25c" stroke="none"/>
-    <circle cx="310" cy="238" r="4" fill="#f4a25c" stroke="none"/>
-    <circle cx="282" cy="308" r="4" fill="#f4a25c" stroke="none"/>
+    <rect x="364" y="92" width="8" height="8" fill="#1e8bff" stroke="none"/>
+    <rect x="334" y="164" width="8" height="8" fill="#1e8bff" stroke="none"/>
+    <rect x="306" y="234" width="8" height="8" fill="#1e8bff" stroke="none"/>
+    <rect x="278" y="304" width="8" height="8" fill="#1e8bff" stroke="none"/>
     <text x="434" y="101">Slate or tile covering</text>
     <text x="434" y="173">Treated batten</text>
     <text x="434" y="243">Breathable membrane</text>
@@ -926,26 +819,74 @@ ROOF_SECTION_SVG = """<svg viewBox="0 0 700 400" role="img" aria-labelledby="sec
 
 
 def coverage_svg():
-    pins = [(300, 200, 13), (196, 148, 8), (400, 150, 8), (228, 268, 8),
-            (386, 262, 8), (150, 214, 7), (452, 212, 7), (300, 302, 7)]
+    pins = [(300, 200, 12), (196, 148, 7), (400, 150, 7), (228, 268, 7),
+            (386, 262, 7), (150, 214, 6), (452, 212, 6), (300, 302, 6)]
     dots = "".join(
-        '<circle cx="%d" cy="%d" r="%d" fill="%s" style="animation:floaty %.1fs ease-in-out infinite;animation-delay:%.1fs">'
-        '</circle>' % (x, y, r, "#e2711d" if i == 0 else "#8cc3e4", 6 + i * 0.4, -i * 0.5)
+        '<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>'
+        % (x - r, y - r, r * 2, r * 2, "#1e8bff" if i == 0 else "#57a8ff")
         for i, (x, y, r) in enumerate(pins))
     rings = "".join(
-        '<circle cx="300" cy="200" r="%d" fill="none" stroke="#8cc3e4" stroke-width="1.5" opacity="%.2f"/>'
-        % (60 + i * 52, 0.34 - i * 0.07) for i in range(4))
+        '<circle cx="300" cy="200" r="%d" fill="none" stroke="#1e8bff" stroke-width="1.4" opacity="%.2f"/>'
+        % (60 + i * 52, 0.36 - i * 0.07) for i in range(4))
     spokes = "".join(
-        '<path d="M300 200 L%d %d" stroke="#8cc3e4" stroke-width="1.2" opacity=".22"/>' % (x, y)
+        '<path d="M300 200 L%d %d" stroke="#57a8ff" stroke-width="1.2" opacity=".26"/>' % (x, y)
         for x, y, _ in pins[1:])
-    return ("""<svg viewBox="0 0 600 400" role="img" aria-label="Map-style diagram showing roofing coverage radiating out from Plymouth">
-  <rect width="600" height="400" fill="#0e1b27"/>
-  <g opacity=".5">%s</g>
+    return ("""<svg viewBox="0 0 600 400" role="img" aria-label="Diagram showing roofing coverage radiating out from Plymouth">
+  <rect width="600" height="400" fill="#0d2942"/>
+  <g opacity=".6">%s</g>
   %s %s
-  <circle cx="300" cy="200" r="26" fill="none" stroke="#e2711d" stroke-width="2" opacity=".6" style="animation:pulsering 3s ease-out infinite;transform-origin:300px 200px"/>
-  <text x="300" y="248" text-anchor="middle" font-family="Outfit, sans-serif" font-size="16" font-weight="700" fill="#ffffff">Plymouth</text>
+  <circle cx="300" cy="200" r="26" fill="none" stroke="#1e8bff" stroke-width="2" opacity=".7" style="animation:pulsering 3s ease-out infinite;transform-origin:300px 200px"/>
+  <text x="300" y="250" text-anchor="middle" font-family="Archivo, sans-serif" font-size="15" font-weight="700" letter-spacing="3" fill="#ffffff">PLYMOUTH</text>
 </svg>""" % (rings, spokes, dots))
 
+
+# --------------------------------------------------------------------------- #
+#  Photography
+#
+#  Placeholders live in assets/img/photos/. Swap the files, keep the names.
+# --------------------------------------------------------------------------- #
+
+PHOTO_DIR = "/assets/img/photos/"
+
+HERO_SLIDES = [
+    ("hero-1.jpg", "Finished slate roof on a Plymouth property"),
+    ("hero-2.jpg", "Stripped roof mid re-roof with scaffolding in place"),
+    ("hero-3.jpg", "New tiled roof with fresh lead flashing to the chimney"),
+]
+
+BEFORE_AFTER = [
+    {
+        "id": "pitched",
+        "title": "Full pitched re-roof",
+        "where": "Plymouth",
+        "before": "ba-pitched-before.jpg",
+        "after": "ba-pitched-after.jpg",
+        "alt_before": "Tired pitched roof with worn tiles and heavy moss before work started",
+        "alt_after": "The same roof finished with new tiles, ridge and flashing",
+        "copy": "Worn tiles, leaks and years of moss stripped back to the rafters, then rebuilt with new membrane, battens, tiles and lead.",
+        "points": ["Brand new tiles", "Fully sealed", "Clean modern finish", "Built to last"],
+    },
+    {
+        "id": "flat",
+        "title": "Flat roof transformation",
+        "where": "Plymouth",
+        "before": "ba-flat-before.jpg",
+        "after": "ba-flat-after.jpg",
+        "alt_before": "Old failing flat roof with ponding and split seams",
+        "alt_after": "New single-piece membrane flat roof with clean trimmed edges",
+        "copy": "A failed felt roof replaced with a seamless membrane system, proper falls and new edge trims — watertight and walk-on ready.",
+        "points": ["Watertight", "Enhanced durability", "Fast & reliable", "Built to last"],
+    },
+]
+
+GALLERY = [
+    ("work-1.jpg", "New tiled roof", "Full re-roof", "Completed pitched roof in new grey tiles"),
+    ("work-2.jpg", "Strip and re-felt", "Re-roof in progress", "Roof stripped to the battens during a re-roof"),
+    ("work-3.jpg", "Chimney and flashing", "Lead work", "Rebuilt chimney stack with new lead flashing"),
+    ("work-4.jpg", "Ridge and hip finish", "New roof", "Dry-fixed ridge and hip tiles on a finished roof"),
+    ("work-5.jpg", "Storm damage repair", "Emergency call-out", "Storm damaged roof made safe before repair"),
+    ("work-6.jpg", "Roofline renewal", "Fascias and guttering", "New fascias, soffits and guttering fitted"),
+]
 
 # --------------------------------------------------------------------------- #
 #  Page builders
@@ -953,11 +894,13 @@ def coverage_svg():
 
 TRUST_POINTS = [
     ("badge", "Checkatrade approved"),
+    ("shield", "Fully insured"),
+    ("star", "100% recommended on Facebook"),
     ("clock", "24-hour call-out"),
     ("pound", "Free, no-obligation quotes"),
-    ("shield", "Insurance work undertaken"),
+    ("calendar", "Quote booked within 12 hours"),
     ("users", "Domestic &amp; commercial"),
-    ("check", "Honest, no-pressure advice"),
+    ("check", "Insurance work undertaken"),
     ("pin", "Plymouth based"),
     ("sparkle", "Site left clean and tidy"),
 ]
@@ -992,13 +935,71 @@ TESTIMONIALS = [
 ]
 
 
+def hero_slideshow():
+    slides = "".join(
+        '''<div class="hero__slide{active}"><img src="{dir}{file}" alt="{alt}" width="1800" height="1100"{loading}></div>'''.format(
+            active=" is-active" if i == 0 else "", dir=PHOTO_DIR, file=f, alt=E(alt),
+            loading='' if i == 0 else ' loading="lazy"')
+        for i, (f, alt) in enumerate(HERO_SLIDES))
+    dots = "".join(
+        '''<button class="hero__dot" type="button" aria-current="{cur}" aria-label="Show photo {n} of {total}"><i></i></button>'''.format(
+            cur="true" if i == 0 else "false", n=i + 1, total=len(HERO_SLIDES))
+        for i in range(len(HERO_SLIDES)))
+    return slides, dots
+
+
+def ba_cards():
+    out = []
+    for b in BEFORE_AFTER:
+        points = "".join("<li>%s %s</li>" % (icon("check"), E(pt)) for pt in b["points"])
+        out.append('''
+      <article class="ba-card reveal">
+        <div class="ba-slider" data-ba style="--pos:50%">
+          <img class="ba-slider__before" src="{dir}{before}" alt="{alt_before}" width="1400" height="1000" loading="lazy">
+          <img class="ba-slider__after" src="{dir}{after}" alt="{alt_after}" width="1400" height="1000" loading="lazy">
+          <span class="ba-slider__tag ba-slider__tag--before">Before</span>
+          <span class="ba-slider__tag ba-slider__tag--after">After</span>
+          <span class="ba-slider__line"></span>
+          <button class="ba-slider__grip" type="button" role="slider" tabindex="0"
+                  aria-label="{title} — drag to compare before and after"
+                  aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">{grip}</button>
+        </div>
+        <div class="ba-card__body">
+          <h3>{title}</h3>
+          <p>{copy}</p>
+          <ul class="ba-points">{points}</ul>
+        </div>
+      </article>'''.format(dir=PHOTO_DIR, before=b["before"], after=b["after"],
+                           alt_before=E(b["alt_before"]), alt_after=E(b["alt_after"]),
+                           title=E(b["title"]), copy=E(b["copy"]), points=points,
+                           grip=icon("drag")))
+    return "".join(out)
+
+
+def gallery_block():
+    items = "".join('''
+        <figure class="gallery__item">
+          <img src="{dir}{file}" alt="{alt}" width="1200" height="900" loading="lazy">
+          <figcaption class="gallery__cap">{title}<span>{kind}</span></figcaption>
+        </figure>'''.format(dir=PHOTO_DIR, file=f, alt=E(alt), title=E(title), kind=E(kind))
+        for f, title, kind, alt in GALLERY)
+    return '''
+      <div class="gallery" data-gallery>
+        <div class="gallery__track">{items}</div>
+        <div class="gallery__nav">
+          <button class="gallery__btn" type="button" data-gallery-prev aria-label="Previous photos">{left}</button>
+          <button class="gallery__btn" type="button" data-gallery-next aria-label="More photos">{right}</button>
+        </div>
+      </div>'''.format(items=items, left=icon("arrow-left"), right=icon("arrow"))
+
+
 def service_cards(limit=None, exclude=None):
     items = [s for s in SERVICES if s["slug"] != exclude]
     if limit:
         items = items[:limit]
     return "".join("""
       <article class="card card--link reveal">
-        <span class="icon-badge">{icon}</span>
+        <span class="icon-square">{icon}</span>
         <h3><a href="/services/{slug}/">{card}</a></h3>
         <p>{blurb}</p>
         <span class="link-arrow">Read more {arrow}</span>
@@ -1008,6 +1009,7 @@ def service_cards(limit=None, exclude=None):
 
 
 def build_home():
+    slides, dots = hero_slideshow()
     marquee_group = "".join('<span class="marquee__item">%s %s</span>' % (icon(i), t)
                             for i, t in TRUST_POINTS)
     steps = "".join("""
@@ -1037,35 +1039,37 @@ def build_home():
     body = """
 <main id="main">
   <section class="hero">
-    <div class="hero__sky"><div class="hero__glow hero__glow--a"></div><div class="hero__glow hero__glow--b"></div></div>
-    <div class="rain" aria-hidden="true"></div>
+    <div class="hero__stage" data-slideshow data-interval="6000">{slides}</div>
+    <div class="hero__scrim"></div>
     <div class="container">
-      <div class="hero__grid">
-        <div>
-          <span class="eyebrow hero__eyebrow">Plymouth &middot; Devon &middot; Checkatrade approved</span>
-          <h1>Plymouth roofers you can rely on&nbsp;&mdash; <span class="hl">whatever the weather</span></h1>
-          <p class="hero__lede">New roofs, roof repairs, flat roofing, roofline and emergency call-out across Plymouth and the surrounding areas. Quality workmanship, honest advice and long-lasting protection for your home.</p>
-          <div class="btn-row">
-            <a class="btn" href="{tel}">{phone} Call {phone_display}</a>
-            <a class="btn btn--light" href="/contact/">Get a free quote {arrow}</a>
-          </div>
-          <ul class="hero__chips">
-            <li class="chip">{check} Free, no-obligation quotes</li>
-            <li class="chip">{clock} 24-hour call-out</li>
-            <li class="chip">{shield} Insurance work undertaken</li>
-          </ul>
+      <div class="hero__inner">
+        <div class="hero__rule"></div>
+        <h1>
+          <span class="hero__kicker">Plymouth</span>
+          <span class="hero__line" style="--d:.3s">Roofing done</span>
+          <span class="hero__line hero__line--blue" style="--d:.4s">properly.</span>
+        </h1>
+        <p class="hero__lede">New roofs, roof repairs, flat roofing, guttering and emergency call-out across Plymouth and the surrounding areas. Quality roofing. Any weather.</p>
+        <div class="btn-row">
+          <a class="btn" href="/contact/">Request a free quote {arrow}</a>
+          <a class="btn btn--light" href="{tel}">{phone} {phone_display}</a>
         </div>
-        <div class="hero__art">{hero_art}</div>
+        <ul class="hero__chips">
+          <li class="chip">{check} Fully insured</li>
+          <li class="chip">{calendar} Quote booked within 12hrs</li>
+          <li class="chip">{clock} 24-hour call-out</li>
+        </ul>
+        <div class="hero__dots" role="group" aria-label="Choose a photo">{dots}</div>
       </div>
     </div>
-    <div class="hero__strip">
+    <div class="hero__stats">
       <div class="container">
-        <div class="hero__stats">
-          <div class="stat"><div class="stat__num">24<span class="u">/7</span></div><div class="stat__label">Emergency call-out</div></div>
-          <div class="stat"><div class="stat__num"><span data-count="8">8</span></div><div class="stat__label">Specialist services</div></div>
-          <div class="stat"><div class="stat__num"><span data-count="100">100</span><span class="u">%</span></div><div class="stat__label">Free quotes</div></div>
-          <div class="stat"><div class="stat__num">Est. 24</div><div class="stat__label">Plymouth based</div></div>
-        </div>
+        <ul>
+          <li><div class="stat"><div class="stat__num"><span data-count="100">100</span><span class="u">%</span></div><div class="stat__label">Recommended</div></div></li>
+          <li><div class="stat"><div class="stat__num"><span data-count="27">27</span></div><div class="stat__label">Facebook reviews</div></div></li>
+          <li><div class="stat"><div class="stat__num">12<span class="u">hr</span></div><div class="stat__label">Quote booked in</div></div></li>
+          <li><div class="stat"><div class="stat__num">24<span class="u">/7</span></div><div class="stat__label">Emergency call-out</div></div></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -1088,7 +1092,29 @@ def build_home():
     </div>
   </section>
 
-  <section class="section section--deep">
+  <section class="section section--navy" id="before-after">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow">Before &amp; after</span>
+        <h2>Drag the slider. See the difference.</h2>
+        <p>Real jobs, start to finish. Pull the handle across to reveal what the same roof looked like before we started.</p>
+      </div>
+      <div class="ba" data-stagger="120">{ba}</div>
+    </div>
+  </section>
+
+  <section class="section section--paper" id="our-work">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Recent work</span>
+        <h2>Roofs we have finished lately</h2>
+        <p>Pitched re-roofs, flat roofs, chimneys, leadwork and roofline — all across Plymouth and the surrounding areas.</p>
+      </div>
+      <div class="reveal">{gallery}</div>
+    </div>
+  </section>
+
+  <section class="section section--navy">
     <div class="container">
       <div class="split">
         <div class="reveal">
@@ -1105,12 +1131,12 @@ def build_home():
             <a class="btn" href="/about/">More about us {arrow}</a>
           </div>
         </div>
-        <div class="art-frame reveal">{section_art}</div>
+        <div class="frame reveal">{section_art}</div>
       </div>
     </div>
   </section>
 
-  <section class="section section--cream">
+  <section class="section section--mist">
     <div class="container">
       <div class="section-head center reveal">
         <span class="eyebrow">How it works</span>
@@ -1124,7 +1150,7 @@ def build_home():
   <section class="section section--paper">
     <div class="container">
       <div class="split split--reverse">
-        <div class="art-frame reveal">{map_art}</div>
+        <div class="frame reveal">{map_art}</div>
         <div class="reveal">
           <span class="eyebrow">Where we work</span>
           <h2>Covering Plymouth and the surrounding areas</h2>
@@ -1138,26 +1164,26 @@ def build_home():
     </div>
   </section>
 
-  <section class="section section--cream">
+  <section class="section section--mist">
     <div class="container">
       <div class="section-head center reveal">
         <span class="eyebrow">What customers say</span>
-        <h2>Reviewed by the people we work for</h2>
-        <p>Verified feedback from our <a class="link-arrow" href="{checkatrade}" rel="noopener nofollow" style="display:inline">Checkatrade profile</a>.</p>
+        <h2>100% recommended</h2>
+        <p>Every one of our <a href="{facebook}" rel="noopener nofollow">27 Facebook reviews</a> recommends us, and our work is verified on <a href="{checkatrade}" rel="noopener nofollow">Checkatrade</a> too.</p>
       </div>
       <div class="grid grid--3" data-stagger="90">{quotes}</div>
     </div>
   </section>
 
   {faq}
-
   {cta}
 </main>
-""".format(tel=TEL, phone=icon("phone"), phone_display=SITE["phone_display"],
-           arrow=icon("arrow"), check=icon("check"), clock=icon("clock"), shield=icon("shield"),
-           hero_art=HERO_SVG, marquee=marquee_group, cards=service_cards(),
+""".format(slides=slides, dots=dots, tel=TEL, phone=icon("phone"),
+           phone_display=SITE["phone_display"], arrow=icon("arrow"), check=icon("check"),
+           clock=icon("clock"), calendar=icon("calendar"), marquee=marquee_group,
+           cards=service_cards(), ba=ba_cards(), gallery=gallery_block(),
            section_art=ROOF_SECTION_SVG, steps=steps, map_art=coverage_svg(), areas=areas,
-           quotes=quotes, checkatrade=SITE["checkatrade"],
+           quotes=quotes, checkatrade=SITE["checkatrade"], facebook=SITE["facebook"],
            faq=faq_section(HOME_FAQS, "Roofing questions, answered", tone="paper"),
            cta=cta_band("Get a free roofing quote in Plymouth",
                         "Tell us what is going on with your roof and we will come and look at it properly — free, with no obligation and no pressure."))
@@ -1197,7 +1223,7 @@ def build_services_index():
     </div>
   </section>
 
-  <section class="section section--deep">
+  <section class="section section--navy">
     <div class="container">
       <div class="split">
         <div class="reveal">
@@ -1211,14 +1237,24 @@ def build_services_index():
             <li>{check}<div><strong>Puddles on a flat roof</strong><span>Falls in the wrong place, and a sign the covering is on borrowed time.</span></div></li>
           </ul>
         </div>
-        <div class="art-frame reveal">{art}</div>
+        <div class="frame reveal">{art}</div>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--mist">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Recent work</span>
+        <h2>Roofs we have finished lately</h2>
+      </div>
+      <div class="reveal">{gallery}</div>
     </div>
   </section>
 
   {cta}
 </main>
-""".format(crumbs=crumbs([("/", "Home"), ("/services/", "Services")]), tel=TEL,
+""".format(gallery=gallery_block(), crumbs=crumbs([("/", "Home"), ("/services/", "Services")]), tel=TEL,
            phone=icon("phone"), phone_display=SITE["phone_display"], arrow=icon("arrow"),
            cards=service_cards(), check=icon("check"), art=ROOF_SECTION_SVG,
            cta=cta_band("Free quotes on every service",
@@ -1227,6 +1263,12 @@ def build_services_index():
         "Roofing Services in Plymouth | Repairs & New Roofs",
         "New roofs, repairs, flat roofing, fascias and guttering, chimney work, leadwork, moss removal and 24-hour emergency call-out across Plymouth.",
         "/services/", structured) + site_header("/services/") + body + site_footer()
+
+
+def service_photo(slug):
+    f, alt = SERVICE_PHOTO[slug]
+    return ('<img src="%s%s" alt="%s" width="1200" height="900" loading="lazy">'
+            % (PHOTO_DIR, f, E(alt)))
 
 
 def build_service(s):
@@ -1266,14 +1308,14 @@ def build_service(s):
     <div class="container">
       <div class="split">
         <div class="reveal prose">
-          <span class="icon-badge">{icon}</span>
+          <span class="icon-square">{icon}</span>
           <h2 style="margin-top:1.4rem">{included_title}</h2>
           {intro}
           <ul>{included}</ul>
         </div>
         <div class="reveal">
           <div class="card" style="box-shadow:var(--shadow-md)">
-            <span class="icon-badge icon-badge--sky">{warn}</span>
+            <span class="icon-square icon-square--light">{warn}</span>
             <h3 style="margin-top:1.15rem">{signs_title}</h3>
             <div class="prose" style="margin-top:1rem"><ul>{signs}</ul></div>
           </div>
@@ -1285,7 +1327,7 @@ def build_service(s):
     </div>
   </section>
 
-  <section class="section section--deep">
+  <section class="section section--navy">
     <div class="container">
       <div class="split">
         <div class="reveal">
@@ -1296,14 +1338,14 @@ def build_service(s):
             <a class="btn" href="/contact/">Get a free quote {arrow}</a>
           </div>
         </div>
-        <div class="art-frame reveal">{art}</div>
+        <div class="frame reveal">{art}</div>
       </div>
     </div>
   </section>
 
   {faq}
 
-  <section class="section section--cream">
+  <section class="section section--mist">
     <div class="container">
       <div class="section-head center reveal">
         <span class="eyebrow">Related</span>
@@ -1320,7 +1362,7 @@ def build_service(s):
            wa_icon=icon("whatsapp"), icon=icon(s["icon"]), included_title=E(s["included_title"]),
            intro=intro, included=included, warn=icon("bolt"), signs_title=E(s["signs_title"]),
            signs=signs, extra_title=E(s["extra_title"]), extra=extra, arrow=icon("arrow"),
-           art=ROOF_SECTION_SVG if s["icon"] != "pin" else coverage_svg(),
+           art=service_photo(s["slug"]),
            faq=faq_section(s["faqs"], "%s — your questions" % s["nav"], tone="paper"),
            related=service_cards(limit=3, exclude=s["slug"]),
            cta=cta_band("Free quote for %s in Plymouth" % s["nav"].lower(),
@@ -1351,7 +1393,7 @@ def build_areas():
     )
     cards = "".join("""
       <article class="card reveal">
-        <span class="icon-badge icon-badge--sky">{pin}</span>
+        <span class="icon-square icon-square--light">{pin}</span>
         <h3>Roofers in {area}</h3>
         <p>{note}</p>
         <a class="link-arrow" href="/contact/">Get a quote in {area} {arrow}</a>
@@ -1385,10 +1427,10 @@ def build_areas():
     </div>
   </section>
 
-  <section class="section section--deep">
+  <section class="section section--navy">
     <div class="container">
       <div class="split">
-        <div class="art-frame reveal">{map_art}</div>
+        <div class="frame reveal">{map_art}</div>
         <div class="reveal">
           <span class="eyebrow">And the rest of the city</span>
           <h2>Also working throughout</h2>
@@ -1437,7 +1479,7 @@ def build_about():
     ]
     value_cards = "".join("""
       <article class="card reveal">
-        <span class="icon-badge">{icon}</span>
+        <span class="icon-square">{icon}</span>
         <h3>{title}</h3>
         <p>{body}</p>
       </article>""".format(icon=icon(i), title=E(t), body=E(b)) for i, t, b in values)
@@ -1471,7 +1513,7 @@ def build_about():
           <p>Being local also shapes the work itself. Roofs here deal with salt-laden air off the Sound and Atlantic south-westerlies that drive rain sideways into details that would stay dry inland. We specify fixings and flashing details with that in mind, because a roof that would be fine in the Midlands is not necessarily fine in Plymstock.</p>
         </div>
         <div class="reveal">
-          <div class="art-frame">{art}</div>
+          <div class="frame">{art}</div>
           <div class="card" style="margin-top:1.25rem">
             <h3>Company details</h3>
             <div class="prose" style="margin-top:1rem">
@@ -1490,7 +1532,7 @@ def build_about():
     </div>
   </section>
 
-  <section class="section section--cream">
+  <section class="section section--mist">
     <div class="container">
       <div class="section-head center reveal">
         <span class="eyebrow">What we stand on</span>
@@ -1504,7 +1546,7 @@ def build_about():
 </main>
 """.format(crumbs=crumbs(trail), tel=TEL, phone=icon("phone"),
            phone_display=SITE["phone_display"], checkatrade=SITE["checkatrade"],
-           badge=icon("badge"), art=ROOF_SECTION_SVG, name=E(SITE["name"]),
+           badge=icon("badge"), art=service_photo("new-roofs"), name=E(SITE["name"]),
            company_no=SITE["company_no"], value_cards=value_cards,
            cta=cta_band("Talk to a Plymouth roofer directly",
                         "No sales team, no scripts. Call and you will speak to someone who actually works on roofs."))
@@ -1718,8 +1760,8 @@ WEBMANIFEST = """{{
   "description": "Roofing across Plymouth — new roofs, repairs, flat roofing and 24-hour emergency call-out.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fbf8f4",
-  "theme_color": "#0e1b27",
+  "background_color": "#ffffff",
+  "theme_color": "#0a2035",
   "icons": [
     {{ "src": "/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }},
     {{ "src": "/assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }}
@@ -1727,15 +1769,18 @@ WEBMANIFEST = """{{
 }}
 """.format(name=SITE["name"])
 
-FAVICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <defs>
-    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f4a25c"/><stop offset="1" stop-color="#c25e12"/>
-    </linearGradient>
-  </defs>
-  <rect width="48" height="48" rx="12" fill="#0e1b27"/>
-  <path d="M9 25.5 24 12.5l15 13" fill="none" stroke="url(#a)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M13.5 24.4V36h21V24.4" fill="none" stroke="#8cc3e4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+FAVICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="26" fill="#0a2035"/>
+  <g transform="translate(0 14)" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 52a48 48 0 0 1 96 0"/>
+    <path d="M21 76 47 50l16 16"/>
+    <path d="M63 66 82 47l18 18v11"/>
+    <path d="M21 76h79"/>
+  </g>
+  <g fill="#1e8bff" transform="translate(0 14)">
+    <rect x="75" y="56" width="8" height="8"/><rect x="87" y="56" width="8" height="8"/>
+    <rect x="75" y="67" width="8" height="8"/><rect x="87" y="67" width="8" height="8"/>
+  </g>
 </svg>
 """
 

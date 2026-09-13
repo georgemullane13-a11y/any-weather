@@ -1,9 +1,12 @@
-/* Any Weather Roofing Ltd — progressive interaction layer.
-   No dependencies. Everything degrades to a fully usable static page. */
+/* Any Weather Roofing Ltd — interaction layer.
+   No dependencies. Every component degrades to a usable static page. */
 (function () {
   "use strict";
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var all = function (sel, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  };
 
   /* ------------------------------------------------ header + mobile nav */
   var header = document.querySelector(".site-header");
@@ -17,11 +20,9 @@
   window.addEventListener("resize", setHeaderHeight, { passive: true });
 
   if (header) {
-    var onScroll = function () {
-      header.classList.toggle("is-stuck", window.scrollY > 8);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    var stick = function () { header.classList.toggle("is-stuck", window.scrollY > 8); };
+    stick();
+    window.addEventListener("scroll", stick, { passive: true });
   }
 
   if (toggle && nav) {
@@ -44,112 +45,191 @@
   }
 
   /* ------------------------------------------------------ scroll reveal */
-  var revealables = document.querySelectorAll(".reveal, .steps, .icon-badge");
+  var revealables = all(".reveal, .steps, .icon-square");
   if (!("IntersectionObserver" in window) || reduced) {
-    Array.prototype.forEach.call(revealables, function (el) { el.classList.add("is-visible"); });
+    revealables.forEach(function (el) { el.classList.add("is-visible"); });
   } else {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        io.unobserve(entry.target);
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("is-visible");
+        io.unobserve(e.target);
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
-    Array.prototype.forEach.call(revealables, function (el) { io.observe(el); });
+    revealables.forEach(function (el) { io.observe(el); });
   }
 
-  /* Stagger children of any [data-stagger] group. */
-  Array.prototype.forEach.call(document.querySelectorAll("[data-stagger]"), function (group) {
+  all("[data-stagger]").forEach(function (group) {
     var step = parseInt(group.getAttribute("data-stagger"), 10) || 90;
     Array.prototype.forEach.call(group.children, function (child, i) {
       child.style.setProperty("--delay", i * step + "ms");
     });
   });
 
-  /* --------------------------------------------------- SVG line drawing */
-  Array.prototype.forEach.call(document.querySelectorAll("[data-draw]"), function (path) {
+  all("[data-draw]").forEach(function (path) {
     if (typeof path.getTotalLength !== "function") return;
-    try {
-      var len = Math.ceil(path.getTotalLength()) + 2;
-      path.style.setProperty("--len", len);
-    } catch (err) { /* non-geometry node — ignore */ }
+    try { path.style.setProperty("--len", Math.ceil(path.getTotalLength()) + 2); }
+    catch (err) { /* not a geometry node */ }
   });
 
-  /* ------------------------------------------------------------- rain */
-  var rain = document.querySelector(".rain");
-  if (rain && !reduced) {
-    var drops = window.innerWidth < 720 ? 26 : 52;
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < drops; i++) {
-      var d = document.createElement("span");
-      d.style.left = (Math.random() * 100).toFixed(2) + "%";
-      d.style.animationDuration = (0.75 + Math.random() * 0.9).toFixed(2) + "s";
-      d.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
-      d.style.opacity = (0.25 + Math.random() * 0.6).toFixed(2);
-      d.style.height = (46 + Math.random() * 70).toFixed(0) + "px";
-      frag.appendChild(d);
-    }
-    rain.appendChild(frag);
-  }
-
   /* --------------------------------------------------- counting numbers */
-  var counters = document.querySelectorAll("[data-count]");
-  if (counters.length) {
-    var runCount = function (el) {
-      var target = parseFloat(el.getAttribute("data-count"));
-      if (isNaN(target)) return;
-      if (reduced) { el.textContent = String(target); return; }
-      var dur = 1400, start = null;
-      var tick = function (ts) {
-        if (start === null) start = ts;
-        var p = Math.min((ts - start) / dur, 1);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = String(Math.round(target * eased));
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    };
-    if ("IntersectionObserver" in window) {
-      var cio = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          runCount(e.target);
-          cio.unobserve(e.target);
-        });
-      }, { threshold: 0.5 });
-      Array.prototype.forEach.call(counters, function (el) { cio.observe(el); });
-    } else {
-      Array.prototype.forEach.call(counters, runCount);
-    }
+  var counters = all("[data-count]");
+  function runCount(el) {
+    var target = parseFloat(el.getAttribute("data-count"));
+    if (isNaN(target)) return;
+    if (reduced) { el.textContent = String(target); return; }
+    var dur = 1300, start = null;
+    (function tick(ts) {
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }
+  if (counters.length && "IntersectionObserver" in window) {
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        runCount(e.target);
+        cio.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function (el) { cio.observe(el); });
+  } else {
+    counters.forEach(runCount);
   }
 
   /* -------------------------------------------------------------- FAQ */
-  Array.prototype.forEach.call(document.querySelectorAll(".faq__q"), function (btn) {
+  all(".faq__q").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var item = btn.closest(".faq__item");
       var open = btn.getAttribute("aria-expanded") === "true";
       btn.setAttribute("aria-expanded", String(!open));
-      item.classList.toggle("is-open", !open);
+      btn.closest(".faq__item").classList.toggle("is-open", !open);
     });
   });
 
-  /* ------------------------------------------------------ hero parallax */
-  var art = document.querySelector("[data-parallax]");
-  if (art && !reduced && window.matchMedia("(min-width: 981px)").matches) {
-    var ticking = false;
-    window.addEventListener("scroll", function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        var y = Math.min(window.scrollY, 620);
-        art.style.transform = "translate3d(0," + (y * -0.06).toFixed(2) + "px,0)";
-        ticking = false;
+  /* ------------------------------------------------------ hero slideshow */
+  (function heroSlideshow() {
+    var stage = document.querySelector("[data-slideshow]");
+    if (!stage) return;
+    var slides = all(".hero__slide", stage);
+    var dots = all(".hero__dot");
+    if (slides.length < 2) return;
+
+    var DURATION = parseInt(stage.getAttribute("data-interval"), 10) || 6000;
+    var index = 0, timer = null;
+    dots.forEach(function (d) { d.style.setProperty("--dur", DURATION + "ms"); });
+
+    function show(next) {
+      slides[index].classList.remove("is-active");
+      if (dots[index]) dots[index].setAttribute("aria-current", "false");
+      index = (next + slides.length) % slides.length;
+      slides[index].classList.add("is-active");
+      if (dots[index]) {
+        // restart the progress fill
+        var fill = dots[index].querySelector("i");
+        if (fill) { fill.style.animation = "none"; void fill.offsetWidth; fill.style.animation = ""; }
+        dots[index].setAttribute("aria-current", "true");
+      }
+    }
+    function play() {
+      if (reduced) return;
+      stop();
+      timer = setInterval(function () { show(index + 1); }, DURATION);
+    }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+    dots.forEach(function (dot, i) {
+      dot.addEventListener("click", function () { show(i); play(); });
+    });
+    stage.addEventListener("pointerenter", stop);
+    stage.addEventListener("pointerleave", play);
+    document.addEventListener("visibilitychange", function () {
+      document.hidden ? stop() : play();
+    });
+    play();
+  })();
+
+  /* --------------------------------------------- before / after sliders */
+  all("[data-ba]").forEach(function (slider) {
+    var grip = slider.querySelector(".ba-slider__grip");
+    var dragging = false;
+    var swept = false;
+
+    function set(pct) {
+      pct = Math.max(0, Math.min(100, pct));
+      slider.style.setProperty("--pos", pct.toFixed(2) + "%");
+      if (grip) grip.setAttribute("aria-valuenow", Math.round(pct));
+    }
+    function fromEvent(e) {
+      var r = slider.getBoundingClientRect();
+      set(((e.clientX - r.left) / r.width) * 100);
+    }
+
+    slider.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      slider.setPointerCapture(e.pointerId);
+      fromEvent(e);
+    });
+    slider.addEventListener("pointermove", function (e) { if (dragging) fromEvent(e); });
+    slider.addEventListener("pointerup", function () { dragging = false; });
+    slider.addEventListener("pointercancel", function () { dragging = false; });
+
+    if (grip) {
+      grip.addEventListener("keydown", function (e) {
+        var now = parseFloat(grip.getAttribute("aria-valuenow")) || 50;
+        var step = e.shiftKey ? 10 : 3;
+        if (e.key === "ArrowLeft") { set(now - step); e.preventDefault(); }
+        if (e.key === "ArrowRight") { set(now + step); e.preventDefault(); }
+        if (e.key === "Home") { set(0); e.preventDefault(); }
+        if (e.key === "End") { set(100); e.preventDefault(); }
       });
-    }, { passive: true });
-  }
+      grip.addEventListener("click", function (e) { e.stopPropagation(); });
+    }
+
+    /* One automatic sweep the first time it scrolls into view, so the
+       control explains itself without anyone having to touch it. */
+    function sweep() {
+      if (swept || reduced) return;
+      swept = true;
+      var t0 = performance.now(), dur = 2400;
+      (function frame(t) {
+        var p = Math.min((t - t0) / dur, 1);
+        var eased = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        set(50 + Math.sin(eased * Math.PI * 2) * 28);
+        if (p < 1 && !dragging) requestAnimationFrame(frame);
+        else if (!dragging) set(50);
+      })(t0);
+    }
+    if ("IntersectionObserver" in window) {
+      var bio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          setTimeout(sweep, 350);
+          bio.unobserve(e.target);
+        });
+      }, { threshold: 0.45 });
+      bio.observe(slider);
+    }
+    set(50);
+  });
+
+  /* ------------------------------------------------------- work gallery */
+  all("[data-gallery]").forEach(function (gallery) {
+    var track = gallery.querySelector(".gallery__track");
+    if (!track) return;
+    gallery.querySelectorAll("[data-gallery-prev], [data-gallery-next]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var first = track.firstElementChild;
+        var step = first ? first.getBoundingClientRect().width + 24 : 320;
+        track.scrollBy({ left: btn.hasAttribute("data-gallery-next") ? step : -step,
+                         behavior: reduced ? "auto" : "smooth" });
+      });
+    });
+  });
 
   /* ---------------------------------------------------------- the year */
-  Array.prototype.forEach.call(document.querySelectorAll("[data-year]"), function (el) {
+  all("[data-year]").forEach(function (el) {
     el.textContent = String(new Date().getFullYear());
   });
 })();
