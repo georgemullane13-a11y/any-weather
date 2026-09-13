@@ -1,0 +1,13 @@
+{
+  "name": "Any Weather Roofing Ltd",
+  "short_name": "Any Weather Roofing",
+  "description": "Roofing across Plymouth — new roofs, repairs, flat roofing and 24-hour emergency call-out.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf8f4",
+  "theme_color": "#0e1b27",
+  "icons": [
+    { "src": "/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

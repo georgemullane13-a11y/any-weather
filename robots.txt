@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anyweatherroofingltd.co.uk/sitemap.xml
