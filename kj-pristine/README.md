@@ -24,9 +24,10 @@ Everything is taken from KJ Pristine's own social posts, flyers and existing sit
 | Declutter & Organisation **from £35/hour** (add-on or standalone) | "Autumn reset" post |
 | Fully insured, DBS checked, Level 5 British Cleaning qualified, owner operated, eco-friendly | Post footers and existing site |
 | Payment terms (25% deposit on deep cleans/resets) and 24-hour satisfaction promise | Payment info and checklist sheets |
-| Areas: Stockport, Cheadle, Cheadle Hulme, Gatley, Bramhall, Hazel Grove, Wythenshawe, Sale, Hale, Wilmslow | "Areas we cover" post |
+| Areas: Stockport, Cheadle, Cheadle Hulme, Gatley, Bramhall, Hazel Grove, Wythenshawe, Sale, Hale, Bowdon, Wilmslow, Alderley Edge, Prestbury ("and all areas of Manchester & Cheshire") | "Areas we cover" and contact graphics |
+| Founder story ("started as an idea… a busy mum with big dreams", "Built around mum life. Built by me."), pet friendly, eco-conscious, Airbnb turnovers, 2–3 hour cleans, "New client enquiries welcome", @kjpristine.cleaning | Recent Facebook posts |
 | Phone 07368 420872, kjpristinecleaning@gmail.com | Existing site and business card |
-| Before/after photos (kitchen, bedroom, wardrobe) | Cropped from screenshots of their posts |
+| Photos: kitchen, child's bedroom, wardrobe, bedroom reset, and the "5 hours, one home" bathroom, living room and oven | Cropped from screenshots of their posts. The AI-generated images of Kerri were deliberately **not** used |
 
 ## Before going live
 
@@ -46,8 +47,12 @@ Everything is taken from KJ Pristine's own social posts, flyers and existing sit
    sends nothing.
 6. **Logo:** `assets/img/logo.svg` is a vector redraw of the logo. If Kerri has
    the original artwork file, drop it in with the same name.
-7. **Checks:** confirm the "weekly or fortnightly" wording for regular cleans
-   and the owner quote attribution with Kerri.
+7. **Checks:** confirm with Kerri the "weekly or fortnightly" wording for
+   regular cleans, the owner quote, and that the TikTok/Instagram links (taken
+   from the links provided) match the `@kjpristine.cleaning` handle on her
+   graphics.
+8. **Photo of Kerri:** a real photo of her (not AI-generated) would suit the
+   About section well.
 
 ## SEO included
 
