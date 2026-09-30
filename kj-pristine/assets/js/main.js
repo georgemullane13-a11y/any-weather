@@ -186,6 +186,29 @@
       if (e.target.name === 'service') form.querySelector('.service-pick').classList.remove('invalid');
     });
 
+    function field(name) {
+      var el = form.querySelector('[name="' + name + '"]:checked') || form.querySelector('[name="' + name + '"]:not([type="radio"])');
+      return el ? el.value.trim() : '';
+    }
+    function buildMessage() {
+      var date = field('date');
+      if (date) {
+        var d = new Date(date + 'T12:00:00');
+        date = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
+      }
+      var lines = [
+        'Hi Kerri, I’d love a free quote from KJ Pristine.',
+        '',
+        'Name: ' + field('name'),
+        'Phone: ' + field('phone'),
+        'Email: ' + field('email'),
+        'Service: ' + field('service'),
+        'Preferred date: ' + (date || 'Flexible')
+      ];
+      if (field('message')) lines.push('', field('message'));
+      return lines.join('\n');
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!validate()) {
@@ -194,20 +217,45 @@
         return;
       }
       var btn = form.querySelector('button[type="submit"]');
-      btn.classList.add('loading');
       var endpoint = form.getAttribute('data-endpoint');
-      var done = function () {
+      var success = form.querySelector('.form-success');
+      var msg = buildMessage();
+      var waUrl = 'https://wa.me/' + form.getAttribute('data-whatsapp') + '?text=' + encodeURIComponent(msg);
+      var mailUrl = 'mailto:' + form.getAttribute('data-email') +
+        '?subject=' + encodeURIComponent('Free quote request: ' + field('service')) +
+        '&body=' + encodeURIComponent(msg);
+      success.querySelector('[data-success-wa]').href = waUrl;
+      success.querySelector('[data-success-mail]').href = mailUrl;
+
+      function show(title, lead, withActions) {
         btn.classList.remove('loading');
-        form.querySelector('.form-success').hidden = false;
-      };
-      if (endpoint) {
-        fetch(endpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
-          .then(function (r) { if (!r.ok) throw new Error(); done(); form.reset(); })
-          .catch(function () { btn.classList.remove('loading'); alert('Sorry, something went wrong. Please call or WhatsApp instead.'); });
-      } else {
-        // Mockup mode: no backend connected yet
-        setTimeout(done, 900);
+        success.querySelector('h3').textContent = title;
+        success.querySelector('.success-lead').innerHTML = lead;
+        success.querySelector('.success-actions').hidden = !withActions;
+        success.hidden = false;
       }
+      function fallback(opened) {
+        show(opened ? 'Nearly there!' : 'Let’s try another way',
+          opened ? 'Your enquiry is ready in WhatsApp. Just press <strong>send</strong> and I’ll be in touch as soon as possible.'
+                 : 'Sorry, the form couldn’t send just now. Tap below to send the same enquiry by WhatsApp or email.',
+          true);
+      }
+
+      if (endpoint) {
+        btn.classList.add('loading');
+        fetch(endpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); })
+          .then(function () {
+            show('Thank you!', 'Your enquiry is in. I’ll be in touch as soon as possible to arrange your free walk-through.', false);
+            form.reset();
+          })
+          .catch(function () { fallback(false); });
+        return;
+      }
+
+      // No endpoint set: hand the enquiry to WhatsApp (email as a fallback)
+      window.open(waUrl, '_blank', 'noopener');
+      fallback(true);
     });
   }
 

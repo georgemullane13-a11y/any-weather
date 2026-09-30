@@ -41,10 +41,13 @@ Everything is taken from KJ Pristine's own social posts, flyers and existing sit
 3. **Domain:** replace `https://www.kjpristine.co.uk/` in `index.html`
    (canonical, Open Graph and schema) with the real domain.
 4. **WhatsApp:** the buttons use `wa.me/447368420872`. Confirm that number is on WhatsApp.
-5. **Quote form:** set `data-endpoint` on `<form id="quote-form">` to a
-   Formspree, Netlify Forms or similar URL. While it's empty the form runs in
-   demo mode: it validates the fields and shows the thank-you message, but
-   sends nothing.
+5. **Quote form:** connected to Formspree (`https://formspree.io/f/mppwnykd`),
+   so enquiries arrive by email at the address on that Formspree account. The
+   first real submission may ask you to confirm the form in Formspree; after
+   that it's automatic. If Formspree can't be reached, the visitor gets
+   one-tap buttons to send the same enquiry by WhatsApp (07368 420872) or
+   email. To use a different form, change `data-endpoint` and `action` on
+   `<form id="quote-form">`.
 6. **Logo:** `assets/img/logo.svg` is a vector redraw of the logo. If Kerri has
    the original artwork file, drop it in with the same name.
 7. **Checks:** confirm with Kerri the "weekly or fortnightly" wording for

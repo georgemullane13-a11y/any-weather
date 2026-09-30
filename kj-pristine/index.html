@@ -652,7 +652,10 @@
       </div>
 
       <!-- Form: set data-endpoint to Formspree / Netlify / your backend URL to go live -->
-      <form class="quote-form reveal" id="quote-form" data-endpoint="" novalidate>
+      <!-- Enquiries post to Formspree (data-endpoint). If that fails, or data-endpoint is emptied, they go via WhatsApp with an email fallback. -->
+      <form class="quote-form reveal" id="quote-form" data-endpoint="https://formspree.io/f/mppwnykd" data-whatsapp="447368420872" data-email="kjpristinecleaning@gmail.com" action="https://formspree.io/f/mppwnykd" method="POST" novalidate>
+        <input type="hidden" name="_subject" value="New quote request: KJ Pristine website">
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
         <div class="form-head">
           <h3>Get your free quote</h3>
           <p>Takes less than a minute</p>
@@ -704,8 +707,12 @@
 
         <div class="form-success" aria-live="polite" hidden>
           <div class="success-ring"><svg><use href="#i-check"/></svg></div>
-          <h3>Thank you!</h3>
-          <p>Your enquiry is in. I’ll be in touch as soon as possible to arrange your free walk-through.</p>
+          <h3>Nearly there!</h3>
+          <p class="success-lead">Your enquiry is ready in WhatsApp. Just press <strong>send</strong> and I’ll be in touch as soon as possible to arrange your free walk-through.</p>
+          <div class="success-actions">
+            <a class="btn btn-whatsapp" href="#" target="_blank" rel="noopener" data-success-wa><svg><use href="#i-whatsapp"/></svg>Open WhatsApp</a>
+            <a class="btn btn-ghost" href="#" data-success-mail><svg><use href="#i-mail"/></svg>Send by email instead</a>
+          </div>
           <p class="script">Clean spaces. Brighter places.</p>
         </div>
       </form>
