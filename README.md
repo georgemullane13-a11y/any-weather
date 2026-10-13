@@ -117,6 +117,7 @@ python3 build.py          # rewrites every HTML page + sitemap.xml
 | Add an FAQ (home page)             | `HOME_FAQS`                     |
 | Add a review                       | `TESTIMONIALS`                  |
 | Point the contact form somewhere   | `FORM_ACTION`                   |
+| Change the weather-test copy       | `WEATHER_STATES`                |
 
 Styling is hand-written CSS in `assets/css/styles.css`, driven by custom
 properties at the top of the file (`--navy-900`, `--blue`, spacing, radii).
@@ -124,10 +125,12 @@ properties at the top of the file (`--navy-900`, `--blue`, spacing, radii).
 ## Before it goes live — checklist
 
 1. **Replace the placeholder photos** (see above). Nothing else matters as much.
-2. **Contact form back-end.** `FORM_ACTION` in `build.py` is a placeholder.
-   Point it at Formspree / Netlify Forms / Basin / your own handler, then
-   re-run `python3 build.py`. Until then the form posts nowhere — the phone
-   and WhatsApp links are the live routes.
+2. **Contact form — done.** It posts to Formspree (`xzedjjwl`). Submissions
+   are sent in the background so the visitor stays on the site and gets an
+   inline confirmation; without JavaScript the browser posts normally.
+   A hidden `_gotcha` honeypot catches most spam bots. Send one test enquiry
+   after go-live to confirm it reaches the right inbox, and check Formspree's
+   monthly submission allowance suits the volume.
 3. **Add an email address** if you want one shown. Add it to `SITE` and to the
    footer and contact blocks.
 4. **Confirm the business details** on the About and Contact pages: company
@@ -182,6 +185,15 @@ python3 -m http.server 8000    # then open http://127.0.0.1:8000
 ## Animation
 
 Everything degrades cleanly and `prefers-reduced-motion: reduce` disables it all:
+
+- **The Any Weather test** — the signature piece. A canvas weather engine drives
+  one scene through sun, driving rain, Atlantic storm, hail and snow: the sky
+  cross-fades, rain angles with the wind, lightning flashes on storm, the scene
+  dims or warms to match, and each state carries its own roofing claim. It
+  cycles on its own until a visitor takes over, then stays where they put it.
+  The loop only runs while the band is on screen and the tab is visible, the
+  particle count scales to the canvas area and caps on mobile, and reduced
+  motion drops the canvas entirely while keeping the copy switchable.
 
 - **Hero slideshow** — crossfade with a slow Ken Burns push, per-slide progress
   bars, click to jump, pauses on hover and when the tab is hidden

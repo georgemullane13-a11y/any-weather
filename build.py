@@ -78,6 +78,10 @@ ICONS = {
     "star": _i('<path d="m12 2.6 2.9 5.9 6.5.9-4.7 4.6 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.6 9.4l6.5-.9Z"/>', fill=True),
     "arrow": _i('<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>'),
     "arrow-left": _i('<path d="M20 12H5"/><path d="m11 6-6 6 6 6"/>'),
+    "sun": _i('<circle data-draw cx="12" cy="12" r="4.4"/><path data-draw d="M12 2.4v2.6M12 19v2.6M4.2 4.2l1.9 1.9M17.9 17.9l1.9 1.9M2.4 12H5M19 12h2.6M4.2 19.8l1.9-1.9M17.9 6.1l1.9-1.9"/>'),
+    "rain": _i('<path data-draw d="M7 16.5a4.3 4.3 0 0 1-.4-8.6 5.6 5.6 0 0 1 10.8-1.3A3.9 3.9 0 0 1 17.8 16"/><path data-draw d="M9 19.2 8 21.4M13 19.2l-1 2.2M17 19.2l-1 2.2"/>'),
+    "hail": _i('<path data-draw d="M7 15.6a4.3 4.3 0 0 1-.4-8.6 5.6 5.6 0 0 1 10.8-1.3A3.9 3.9 0 0 1 17.8 15"/><circle data-draw cx="9" cy="19.4" r="1.2"/><circle data-draw cx="13" cy="21" r="1.2"/><circle data-draw cx="16.6" cy="19.4" r="1.2"/>'),
+    "snow": _i('<path data-draw d="M7 15.6a4.3 4.3 0 0 1-.4-8.6 5.6 5.6 0 0 1 10.8-1.3A3.9 3.9 0 0 1 17.8 15"/><path data-draw d="M9 18.4v2.8M7.6 19.1l2.8 1.4M10.4 19.1l-2.8 1.4"/><path data-draw d="M15.4 18.4v2.8M14 19.1l2.8 1.4M16.8 19.1l-2.8 1.4"/>'),
     "drag": _i('<path d="M9 6 3.6 12 9 18"/><path d="m15 6 5.4 6L15 18"/><path d="M12 3.6v16.8"/>'),
     "pin": _i('<path data-draw d="M12 21.4s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle data-draw cx="12" cy="10.2" r="2.6"/>'),
     "clock": _i('<circle data-draw cx="12" cy="12" r="9.2"/><path data-draw d="M12 6.8V12l3.4 2"/>'),
@@ -595,8 +599,12 @@ def faq_ld(faqs):
     }
 
 
-def head(title, desc, path, structured, og_type="website"):
+def head(title, desc, path, structured, og_type="website", og_image=None, preload=None):
+    """`og_image` overrides the default share card; `preload` is the LCP image."""
     canonical = SITE["origin"] + path
+    share = SITE["origin"] + (og_image or "/assets/img/og-image.png")
+    preload_tag = ('\n<link rel="preload" as="image" href="%s" fetchpriority="high">' % preload
+                   if preload else "")
     return """<!doctype html>
 <html lang="en-GB" class="no-js">
 <head>
@@ -617,27 +625,28 @@ def head(title, desc, path, structured, og_type="website"):
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="{origin}/assets/img/og-image.png">
+<meta property="og:image" content="{share}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{name} — roofing across Plymouth">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
-<meta name="twitter:image" content="{origin}/assets/img/og-image.png">
+<meta name="twitter:image" content="{share}">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/styles.css">{preload_tag}
 {structured}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 """.format(title=E(title), desc=E(desc), canonical=canonical, name=E(SITE["name"]),
-           og_type=og_type, origin=SITE["origin"], structured=structured)
+           og_type=og_type, origin=SITE["origin"], structured=structured,
+           share=share, preload_tag=preload_tag)
 
 
 def site_header(active):
@@ -714,15 +723,15 @@ def site_footer():
         <p style="margin-top:.5rem"><a class="link-arrow" href="{facebook}" rel="noopener nofollow">{users} Follow us on Facebook {arrow}</a></p>
       </div>
       <div>
-        <h4>Services</h4>
+        <h3 class="footer-head">Services</h3>
         <ul class="footer-links">{service_links}</ul>
       </div>
       <div>
-        <h4>Areas covered</h4>
+        <h3 class="footer-head">Areas covered</h3>
         <ul class="footer-links">{area_links}<li><a href="/areas-we-cover/">See all areas</a></li></ul>
       </div>
       <div>
-        <h4>Get in touch</h4>
+        <h3 class="footer-head">Get in touch</h3>
         <ul class="footer-contact">
           <li>{phone}<span><a href="{tel}">{phone_display}</a><br>24-hour call-out</span></li>
           <li>{wa_icon}<span><a href="{wa}" rel="noopener">Message on WhatsApp</a></span></li>
@@ -865,6 +874,104 @@ def coverage_svg():
 </svg>""" % (rings, spokes, dots))
 
 
+def _weather_tiles():
+    """Tile courses clipped to the gable, narrowing towards the apex."""
+    out = []
+    for r in range(8):
+        half = 30 + r * 28.6                      # gable half-width at this course
+        left, y = 280 - half, 96 + r * 22
+        for c in range(int((half * 2) / 30) + 2):
+            tone = "#24466a" if (r + c) % 3 else "#18344f"
+            out.append('<rect x="%.1f" y="%d" width="26" height="19" rx="2" fill="%s"/>'
+                       % (left + c * 30, y, tone))
+    return "".join(out)
+
+
+WEATHER_SCENE_SVG = """<svg viewBox="0 0 560 400" role="img" aria-label="Illustration of a well-built roof standing up to the weather">
+  <defs>
+    <linearGradient id="w-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f2ea"/><stop offset="1" stop-color="#ded5c6"/>
+    </linearGradient>
+    <clipPath id="w-roof"><path d="M280 72 500 250H60Z"/></clipPath>
+  </defs>
+
+  <rect x="92" y="250" width="376" height="128" rx="4" fill="url(#w-wall)"/>
+  <g fill="#10314f">
+    <rect x="136" y="282" width="78" height="62" rx="3"/>
+    <rect x="346" y="282" width="78" height="62" rx="3"/>
+    <rect x="248" y="296" width="64" height="82" rx="3"/>
+  </g>
+  <g stroke="#f6f2ea" stroke-width="5">
+    <path d="M175 282v62M136 313h78M385 282v62M346 313h78"/>
+  </g>
+  <circle cx="300" cy="340" r="3.4" fill="#1e8bff"/>
+
+  <g clip-path="url(#w-roof)">""" + _weather_tiles() + """</g>
+  <path d="M280 72 500 250H60Z" fill="none" stroke="#1e8bff" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="352" y="112" width="48" height="92" rx="3" fill="#13304a"/>
+  <rect x="346" y="104" width="60" height="14" rx="3" fill="#24466a"/>
+  <path d="M352 178h48v14h-48z" fill="#9fb6cc"/>
+  <rect x="44" y="244" width="472" height="13" rx="6" fill="#0a2035"/>
+  <rect x="86" y="257" width="11" height="124" rx="5" fill="#0a2035"/>
+  <rect x="463" y="257" width="11" height="124" rx="5" fill="#0a2035"/>
+  <rect x="30" y="378" width="500" height="7" rx="3.5" fill="#1e8bff" opacity=".45"/>
+</svg>"""
+
+
+# key, headline name, icon, short button label, the claim
+WEATHER_STATES = [
+    ("sun", "Blazing sun", "sun", "Sun",
+     "Heat movement is what cracks cheap mortar bedding. We dry-fix ridges and verges so nothing shrinks away in a hot spell."),
+    ("rain", "Driving rain", "rain", "Rain",
+     "Breathable membrane, correct batten gauge, lead where lead belongs. Water runs off the roof — never under it."),
+    ("storm", "Atlantic storm", "bolt", "Storm",
+     "Mechanically fixed ridges and generous verge laps. Specified for an exposed Plymouth elevation, not a sheltered one."),
+    ("hail", "Hail", "hail", "Hail",
+     "Sound battens and a solid covering underneath, so there is no soft spot for hail to find and no cracked tile left behind."),
+    ("snow", "Snow and frost", "snow", "Snow",
+     "Freeze-thaw is what finishes a tired roof. Sound pointing and clear valleys stop water sitting long enough to do it."),
+]
+
+
+def weather_section():
+    skies = "".join('<span class="weather__sky" data-sky="%s"></span>' % k
+                    for k, _, _, _, _ in WEATHER_STATES)
+    buttons = "".join(
+        '<button class="weather__btn" type="button" data-weather="{k}" aria-pressed="{p}">{ic}<span>{label}</span></button>'.format(
+            k=k, p="true" if i == 1 else "false", ic=icon(ic), label=E(short))
+        for i, (k, _, ic, short, _) in enumerate(WEATHER_STATES))
+    data = "".join(
+        '<script type="application/json" data-weather-copy=\'{k}\'>{{"name":"{n}","claim":"{c}"}}</script>'.format(
+            k=k, n=E(name), c=E(claim)) for k, name, _, _, claim in WEATHER_STATES)
+    return """
+<section class="weather" id="any-weather-test" aria-labelledby="awt-title" data-weather-stage>
+  <div class="weather__skies" aria-hidden="true">{skies}</div>
+  <canvas class="weather__canvas" aria-hidden="true"></canvas>
+  <span class="weather__flash" aria-hidden="true"></span>
+  <div class="container weather__inner">
+    <div class="weather__copy">
+      <span class="eyebrow">The Any Weather test</span>
+      <h2 id="awt-title">Throw the worst at it.</h2>
+      <p>It is not just a name. Pick your weather and watch what a properly built roof does about it &mdash; then tell us what yours is doing.</p>
+      <div class="weather__state">
+        <strong data-weather-name>{first_name}</strong>
+        <span data-weather-claim>{first_claim}</span>
+      </div>
+      <div class="weather__controls" role="group" aria-label="Choose the weather">{buttons}</div>
+      <p class="weather__sr sr-only" role="status" aria-live="polite" data-weather-live></p>
+      <div class="btn-row" style="margin-top:1.8rem">
+        <a class="btn" href="/contact/">Get a free roof check {arrow}</a>
+      </div>
+    </div>
+    <div class="weather__scene">{scene}</div>
+  </div>
+  {data}
+</section>
+""".format(skies=skies, buttons=buttons, scene=WEATHER_SCENE_SVG, data=data,
+           first_name=E(WEATHER_STATES[1][1]), first_claim=E(WEATHER_STATES[1][4]),
+           arrow=icon("arrow"))
+
+
 # --------------------------------------------------------------------------- #
 #  Photography
 #
@@ -964,7 +1071,8 @@ def hero_slideshow():
     slides = "".join(
         '''<div class="hero__slide{active}"><img src="{dir}{file}" alt="{alt}" width="1800" height="1100"{loading}></div>'''.format(
             active=" is-active" if i == 0 else "", dir=PHOTO_DIR, file=f, alt=E(alt),
-            loading='' if i == 0 else ' loading="lazy"')
+            loading=' fetchpriority="high" decoding="async"' if i == 0
+                    else ' loading="lazy" decoding="async"')
         for i, (f, alt) in enumerate(HERO_SLIDES))
     dots = "".join(
         '''<button class="hero__dot" type="button" aria-current="{cur}" aria-label="Show photo {n} of {total}"><i></i></button>'''.format(
@@ -980,8 +1088,8 @@ def ba_cards():
         out.append('''
       <article class="ba-card reveal">
         <div class="ba-slider" data-ba style="--pos:50%">
-          <img class="ba-slider__before" src="{dir}{before}" alt="{alt_before}" width="1400" height="1000" loading="lazy">
-          <img class="ba-slider__after" src="{dir}{after}" alt="{alt_after}" width="1400" height="1000" loading="lazy">
+          <img class="ba-slider__before" src="{dir}{before}" alt="{alt_before}" width="1400" height="1000" loading="lazy" decoding="async">
+          <img class="ba-slider__after" src="{dir}{after}" alt="{alt_after}" width="1400" height="1000" loading="lazy" decoding="async">
           <span class="ba-slider__tag ba-slider__tag--before">Before</span>
           <span class="ba-slider__tag ba-slider__tag--after">After</span>
           <span class="ba-slider__line"></span>
@@ -1004,7 +1112,7 @@ def ba_cards():
 def gallery_block():
     items = "".join('''
         <figure class="gallery__item">
-          <img src="{dir}{file}" alt="{alt}" width="1200" height="900" loading="lazy">
+          <img src="{dir}{file}" alt="{alt}" width="1200" height="900" loading="lazy" decoding="async">
           <figcaption class="gallery__cap">{title}<span>{kind}</span></figcaption>
         </figure>'''.format(dir=PHOTO_DIR, file=f, alt=E(alt), title=E(title), kind=E(kind))
         for f, title, kind, alt in GALLERY)
@@ -1117,6 +1225,8 @@ def build_home():
     </div>
   </section>
 
+  {weather}
+
   <section class="section section--navy" id="before-after">
     <div class="container">
       <div class="section-head center reveal">
@@ -1206,7 +1316,7 @@ def build_home():
 """.format(slides=slides, dots=dots, tel=TEL, phone=icon("phone"),
            phone_display=SITE["phone_display"], arrow=icon("arrow"), check=icon("check"),
            clock=icon("clock"), calendar=icon("calendar"), marquee=marquee_group,
-           cards=service_cards(), ba=ba_cards(), gallery=gallery_block(),
+           cards=service_cards(), weather=weather_section(), ba=ba_cards(), gallery=gallery_block(),
            section_art=ROOF_SECTION_SVG, steps=steps, map_art=coverage_svg(), areas=areas,
            quotes=quotes, checkatrade=SITE["checkatrade"], facebook=SITE["facebook"],
            faq=faq_section(HOME_FAQS, "Roofing questions, answered", tone="paper"),
@@ -1216,7 +1326,8 @@ def build_home():
     return head(
         "Roofers in Plymouth | New Roofs & Repairs | Any Weather",
         "Trusted roofers in Plymouth. New roofs, repairs, flat roofing, guttering, chimney work and 24-hour emergency call-out. Free quotes — call 07745 364 538.",
-        "/", structured) + site_header("/") + body + site_footer()
+        "/", structured,
+        preload=PHOTO_DIR + HERO_SLIDES[0][0]) + site_header("/") + body + site_footer()
 
 
 def build_services_index():
@@ -1244,6 +1355,10 @@ def build_services_index():
 
   <section class="section section--paper">
     <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">The full list</span>
+        <h2>Every roofing service we offer</h2>
+      </div>
       <div class="grid grid--3" data-stagger="80">{cards}</div>
     </div>
   </section>
@@ -1292,7 +1407,7 @@ def build_services_index():
 
 def service_photo(slug):
     f, alt = SERVICE_PHOTO[slug]
-    return ('<img src="%s%s" alt="%s" width="1200" height="900" loading="lazy">'
+    return ('<img src="%s%s" alt="%s" width="1200" height="900" loading="lazy" decoding="async">'
             % (PHOTO_DIR, f, E(alt)))
 
 
@@ -1305,6 +1420,7 @@ def build_service(s):
         {"@type": "Service", "name": s["card"], "serviceType": s["card"],
          "url": SITE["origin"] + "/services/" + s["slug"] + "/",
          "description": s["meta"],
+         "image": SITE["origin"] + PHOTO_DIR + SERVICE_PHOTO[s["slug"]][0],
          "provider": {"@id": SITE["origin"] + "/#business"},
          "areaServed": [{"@type": "City", "name": a} for a in PRIMARY_AREAS]},
         faq_ld(s["faqs"]),
@@ -1393,7 +1509,9 @@ def build_service(s):
            cta=cta_band("Free quote for %s in Plymouth" % s["nav"].lower(),
                         "Call, message or send a photo. We will tell you what is wrong, what it takes to fix it, and what it costs — before you commit to anything."))
     return head(s["title"], s["meta"], "/services/%s/" % s["slug"], structured,
-                og_type="article") + site_header("/services/") + body + site_footer()
+                og_type="article",
+                og_image=PHOTO_DIR + SERVICE_PHOTO[s["slug"]][0]
+                ) + site_header("/services/") + body + site_footer()
 
 
 AREA_NOTES = {
@@ -1621,8 +1739,8 @@ def build_contact():
           <div class="card" style="margin-top:2rem">
             <h3>Contact details</h3>
             <ul class="footer-contact" style="margin-top:1.1rem;color:var(--ink-soft)">
-              <li>{phone}<span><a href="{tel}" style="color:var(--ember-600)">{phone_display}</a><br>24 hours, 7 days a week</span></li>
-              <li>{wa_icon}<span><a href="{wa}" rel="noopener" style="color:var(--ember-600)">Message us on WhatsApp</a></span></li>
+              <li>{phone}<span><a href="{tel}" style="color:var(--blue-600)">{phone_display}</a><br>24 hours, 7 days a week</span></li>
+              <li>{wa_icon}<span><a href="{wa}" rel="noopener" style="color:var(--blue-600)">Message us on WhatsApp</a></span></li>
               <li>{pin}<span>Plymouth, Devon &mdash; covering Plymouth, Plympton, Plymstock, Devonport, Mutley, Mannamead, Stoke and Eggbuckland</span></li>
               <li>{badge}<span>Company no. {company_no} &middot; Checkatrade approved</span></li>
             </ul>
@@ -1630,7 +1748,9 @@ def build_contact():
         </div>
 
         <div class="reveal">
-          <form class="form-card" action="{form_action}" method="POST">
+          <form class="form-card"{form_attrs}>
+            <input type="hidden" name="_subject" value="New roofing enquiry from anyweatherroofingltd.co.uk">
+            <p class="hp" aria-hidden="true"><label for="company">Company</label><input id="company" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></p>
             <div class="field-row">
               <div class="field">
                 <label for="name">Your name</label>
@@ -1662,8 +1782,10 @@ def build_contact():
               <label for="message">Tell us what is happening</label>
               <textarea id="message" name="message" placeholder="For example: damp patch on the bedroom ceiling after heavy rain, and a slate came down in the last storm." required></textarea>
             </div>
-            <button class="btn" type="submit" style="width:100%">{mail} Send my enquiry</button>
-            <p class="form-note">We only use your details to answer your enquiry. Urgent? Call <a href="{tel}" style="color:var(--ember-600);font-weight:600">{phone_display}</a> &mdash; we answer 24 hours.</p>
+            <button class="btn" type="submit" style="width:100%">{submit_icon} {submit_label}</button>
+            <p class="form-sent" role="status" hidden><span class="form-sent__icon"></span><span class="form-sent__text"></span></p>
+            <p class="form-note">We only use your details to answer your enquiry. Urgent? Call <a href="{tel}" style="color:var(--blue-600);font-weight:600">{phone_display}</a> &mdash; we answer 24 hours.</p>
+            <noscript><p class="form-note">Your enquiry will send normally &mdash; or call <a href="{tel}">{phone_display}</a> / message us on <a href="{wa}" rel="noopener">WhatsApp</a>.</p></noscript>
           </form>
         </div>
       </div>
@@ -1676,7 +1798,7 @@ def build_contact():
            phone_display=SITE["phone_display"], wa=WA, wa_icon=icon("whatsapp"),
            check=icon("check"), clock=icon("clock"), shield=icon("shield"), pin=icon("pin"),
            badge=icon("badge"), company_no=SITE["company_no"], options=options,
-           mail=icon("mail"), form_action=FORM_ACTION,
+           form_attrs=form_attrs(), submit_icon=submit_icon(), submit_label=submit_label(),
            cta=cta_band("Prefer to talk it through?",
                         "Call and you will get someone who knows roofs, not a call handler reading from a script."))
     return head(
@@ -1688,7 +1810,26 @@ def build_contact():
 # Set this to your form back-end (Formspree, Netlify Forms, Basin, a PHP handler,
 # …). Until it is set, the form posts nowhere — the phone and WhatsApp links are
 # the live routes. See README.md.
-FORM_ACTION = "https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID"
+# The enquiry form posts here. Submissions are sent by JavaScript so the
+# visitor stays on the site and sees an inline confirmation; without
+# JavaScript the browser posts the form normally and the endpoint's own
+# thank-you page handles it. Leave FORM_ACTION empty to fall back to
+# composing a WhatsApp message instead of using a back-end.
+FORM_ACTION = "https://formspree.io/f/xzedjjwl"
+
+
+def form_attrs():
+    if FORM_ACTION:
+        return ' action="%s" method="POST" data-ajax-form' % E(FORM_ACTION)
+    return ' data-wa-form="%s" method="POST" action="%s"' % (SITE["whatsapp"], WA)
+
+
+def submit_icon():
+    return icon("mail") if FORM_ACTION else icon("whatsapp")
+
+
+def submit_label():
+    return "Send my enquiry" if FORM_ACTION else "Send my enquiry on WhatsApp"
 
 
 def build_privacy():
@@ -1752,6 +1893,10 @@ def build_404():
   </section>
   <section class="section section--paper">
     <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow">Try these</span>
+        <h2>What we do</h2>
+      </div>
       <div class="grid grid--3" data-stagger="70">{cards}</div>
     </div>
   </section>
